@@ -1,0 +1,86 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="Yuke's blog"><meta name="keywords" content="key, key1, key2"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.5"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.5"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><title>Parallel Design Pattern | Yuke's blog</title><meta name="generator" content="Hexo 4.2.0"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Parallel Design Pattern</h1><a id="logo" href="/.">Yuke's blog</a><p class="description">MPI_Init()</p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">Parallel Design Pattern</h1><div class="post-meta"><a href="/2020/02/16/Parallel-Design-Pattern/#comments" class="comment-count"></a><p><span class="date">Feb 16, 2020</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><h2 id="Terms"><a href="#Terms" class="headerlink" title="Terms"></a>Terms</h2><ul>
+<li>Task</li>
+<li>Unit of Executionn (UE) = process / thread</li>
+<li>Processing Element (PE) = node</li>
+</ul>
+<h2 id="Patterns"><a href="#Patterns" class="headerlink" title="Patterns"></a>Patterns</h2><img src="/Users/yuke/Library/Application Support/typora-user-images/image-20200203195636870.png" alt="image-20200203195636870" style="zoom:80%;" />  
+
+<ul>
+<li>Algorithm Strategy<ul>
+<li>Task Parallelism  </li>
+<li>Divided and conquer</li>
+<li>Geometric Decomposition</li>
+<li>Recrusive Data</li>
+<li>Pipelines</li>
+<li>Event-Based Coordination</li>
+<li>Actor pattern</li>
+</ul>
+</li>
+<li>Supporting Structures (Program Structure and Data Structure)<ul>
+<li>Master / Worker</li>
+<li>Loop Parallelism</li>
+<li>Fork / Join</li>
+<li>Shared Queue</li>
+<li>SPMD</li>
+<li>Shared Data</li>
+<li>Distributed Array</li>
+<li>Active messaging</li>
+<li>Vectorisation</li>
+</ul>
+</li>
+<li>Components of a Design Pattern<ul>
+<li>Pattern Name</li>
+<li>Problem <em>描述问题，此处不涉及并行性</em></li>
+<li>Descriptionn of the context<br>详细描述所选择的pattern，以及可以用在哪里，以及怎么用</li>
+<li>The forces<br>goals and constraints<br>影响该pattern正常使用的东西 </li>
+<li>The solution</li>
+</ul>
+</li>
+</ul>
+<h3 id="Geometric-Decomposition"><a href="#Geometric-Decomposition" class="headerlink" title="Geometric Decomposition"></a>Geometric Decomposition</h3><ul>
+<li>Data areas可分，且并发。</li>
+<li>Data structure通常是数组，或是图片</li>
+<li>不适合具有层次的数据结构，例如树</li>
+<li>对一个元素的操作涉及它自己和邻居元素</li>
+<li>The forces<br>如何定义子域及分配子域<br>performance<br>load balance<br>子域如何获取计算所需要的数据<br>parallelisation overheads</li>
+<li>Solution  <ul>
+<li>Data decomposition : 如何划分子域<br>shape of subdomains<br>how many subdomains<br>Where data start <em>Already in domain? init in one UE then distribute?</em><br>data even or uneven?<br>Granularity 粒度 <em>coarse-grained or fine-grained</em></li>
+<li>Exchange operation : 来自邻域的影响<br>common approach : halo-swapping</li>
+<li>Update operation : 计算<br>Overlapping compute and communication <em>non-blocking communication</em></li>
+<li>Task scheduling  </li>
+<li>Program structure<br>loop parallelism <em>OpenMP</em><br>SPMD <em>MPI</em></li>
+</ul>
+</li>
+</ul>
+<h3 id="Recursive-Data"><a href="#Recursive-Data" class="headerlink" title="Recursive Data"></a>Recursive Data</h3><ul>
+<li>Problem name<br>DFS</li>
+<li>Descriptionn of the context<br>For each node compute the root of the tree containing that node.<br>Naive parallelism : operate on subtrees in parallel but can not operate on all element concurrently<br>Recasting for parallism :     <pre><code>Compute the one hop parent of each node.  
+Compute the parent&apos;s parent.  
+Again.</code></pre></li>
+<li>Forces<br>Recasting can ensure the data structure can be operated on independently, but coould increase the total amount of work to be performed. <em>trade-off</em><br>Recasting the problem may be difficult.<br>Parallelism exposed may not be efficiently exploitable  </li>
+<li>Solution<br>。。。</li>
+</ul>
+<ul>
+<li>name</li>
+<li>-<ul>
+<li>find concurrency</li>
+<li>data dependent - so data decomposition</li>
+</ul>
+</li>
+<li>linear - so we not use recursive data</li>
+<li>only need to conmunicate with their neighbors</li>
+<li>no<ul>
+<li>task parallel<ul>
+<li>not too much computation, so do bad in load balance</li>
+<li>tasks are weak of independence, why?</li>
+<li>so need to communicate frequently, overhead –need to rethink</li>
+</ul>
+</li>
+<li>pipeline<ul>
+<li>computation don’t need much stages, so very quickly to finish</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div><div class="post-copyright"><blockquote><p>原文作者: Yuke Li</p><p>原文链接: <a href="http://yoursite.com/2020/02/16/Parallel-Design-Pattern/">http://yoursite.com/2020/02/16/Parallel-Design-Pattern/</a></p><p>版权声明: 转载请注明出处</p></blockquote></div><div class="tags"><a href="/tags/parallel-pattern/">parallel pattern</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2020/02/15/test-my-site/" class="next">test_my_site</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Terms"><span class="toc-text">Terms</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Patterns"><span class="toc-text">Patterns</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Geometric-Decomposition"><span class="toc-text">Geometric Decomposition</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Recursive-Data"><span class="toc-text">Recursive Data</span></a></li></ol></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/02/16/Parallel-Design-Pattern/">Parallel Design Pattern</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/15/test-my-site/">test_my_site</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/15/hello-world/">Hello World</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-gui"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Hexo%E5%8D%9A%E5%AE%A2%E9%85%8D%E7%BD%AE/">Hexo博客配置</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/hexo/" style="font-size: 15px;">hexo</a> <a href="/tags/BlueLake/" style="font-size: 15px;">BlueLake</a> <a href="/tags/parallel-pattern/" style="font-size: 15px;">parallel pattern</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/">2020</a><span class="archive-list-count">3</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="s1951167@ed.ac.uk" title="Email" target="_blank">Email</a><ul></ul><a href="https://github.com/lykcas" title="Github" target="_blank">Github</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">Yuke Li.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/" target="_blank" rel="noopener"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.5"></script><div id="fullscreen-img" class="hide"><span class="close"></span></div><script type="text/javascript" src="/js/imgview.js?v=2.0.5" async></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.5" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>
